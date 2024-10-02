@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 ?>
     <!-- تضمين مكتبة جوجل ماب -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAoEIYgSq4JljZkVYRvkdx1jC6mSCi_p6g&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=" async defer></script>
 
     <style>
         /* تنسيق الخريطتين */
