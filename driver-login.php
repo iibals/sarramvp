@@ -1,16 +1,16 @@
 <?php include "header.php" ?>
 <?php session_start();
 
-  if(isset($_SESSION["user_id"])) {
-    header('location:index.php');
-  }
+//   if(isset($_SESSION["user_id"])) {
+//     header('location:index.php');
+//   }
 
 
 ?>
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <h2 class="mb-3 large-header">تسجيل الدخول</h2>
+            <h2 class="mb-3 large-header"> دخول الكابتن</h2>
 
             <?php if($success): ?>
                 <div class="alert alert-success"><?php echo $success; ?></div>

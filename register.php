@@ -111,7 +111,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="form-group">
                         <label for="password">كلمة المرور</label>
                         <input type="password" class="form-control" id="password" name="password" placeholder="كلمة المرور" required>
-                        <a href="driver-register.php"> تسجيل الكباتن </a>
+                        <a class="to-driver-section" href="driver-login.php"> اضغط هنا لدخول الكابتن</a>
                     </div>
                     <div class="text-center mt-3"><button type="submit" class="btn btn-primary">تسجيل</button</div>
                 </form>

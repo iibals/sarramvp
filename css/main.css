@@ -384,3 +384,7 @@ li.nav-item {
     font-size: 13px;
     font-family: system-ui;
 }
+.to-driver-section {
+  text-align:center;
+  display:block;
+}
