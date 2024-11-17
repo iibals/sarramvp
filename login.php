@@ -1,11 +1,11 @@
 <?php include "header.php"?>
 <?php
     // بدء الجلسة
-    session_start();
-    if(isset($_SESSION['user_id'])) {
-        // المستخدم مسجل الدخول
-          header('Location:index.php');
-    }
+    // session_start();
+    // if(isset($_SESSION['user_id'])) {
+    //     // المستخدم مسجل الدخول
+    //       header('Location:index.php');
+    // }
 // تعيين إعدادات الكوكيز لجلسة تدوم لمدة أسبوع
 $cookie_lifetime = 604800; // 7 أيام بالثواني
 
@@ -81,6 +81,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         $_SESSION['user_name'] = $name;
                         $_SESSION['user_email'] = $email_db;
                         $_SESSION['user_phone'] = $phone_db;
+                        $_SESSION['user_type'] = 'user'; // أضف هذا السطر
+
                         $success = "تم تسجيل الدخول بنجاح!";
                         
                         // إعادة التوجيه إلى صفحة محمية (اختياري)
@@ -106,7 +108,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
-
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -128,6 +129,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="form-group">
                     <label for="password">كلمة المرور</label>
                     <input type="password" class="form-control" id="password" name="password" placeholder="أدخل كلمة المرور" required>
+                </div>
+                <div class="d-flex justify-content-around">
+                  <a class="to-driver-section text-start" href="register.php">مستخدم جديد ؟</a>
+                  <a class="to-driver-section text-end" href="driver-login.php">كابتن ؟</a>
                 </div>
                 <div class="text-center mt-3"><button type="submit" class="btn btn-primary">تسجيل الدخول</button></div>
             </form>

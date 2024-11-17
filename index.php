@@ -48,7 +48,7 @@
     <?php
         // بدء الجلسة
          session_start();
-        if (!isset($_SESSION['user_id'])) {
+    if(!isset($_SESSION['user_id']) && !isset($_SESSION['driver_id'])) { 
             // المستخدم مسجل الدخول
             echo "
             <div class='container-fluid login-now-section'>
@@ -132,7 +132,7 @@
 
 <!-- الكود الخاص بالنافذة المنبثقة -->
 <?php
-if (!isset($_SESSION['user_id'])) {
+if(!isset($_SESSION['user_id']) && !isset($_SESSION['driver_id'])) { 
   echo "
   
   <div class='modal fade' id='loginModal' tabindex='-1' aria-labelledby='loginModalLabel' aria-hidden='true'>
@@ -143,7 +143,7 @@ if (!isset($_SESSION['user_id'])) {
           <button type='button' class='btn-close position-absolute' data-bs-dismiss='modal' aria-label='Close' style='left: 15px;'></button>
           <h5 class='modal-title mx-auto' id='loginModalLabel'>سجل دخولك الآن!</h5>
         </div>
-        <div class='modal-body text-center'></p>
+        <div class='modal-body text-center'>
           <a href='login.php' class='btn btn-outline-primary me-2'>تسجيل الدخول</a>
           <a href='register.php' class='btn btn-primary'>أبدا الآن</a>
         </div>
@@ -157,6 +157,7 @@ if (!isset($_SESSION['user_id'])) {
   ";
 }
 ?>
+
 
 <!-- جافا سكريبت لفتح النافذة تلقائيًا عند تحميل الصفحة -->
 <script>

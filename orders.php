@@ -1,10 +1,16 @@
-<?php include "header.php"?>
 <?php
 session_start();
-if(!isset($_SESSION['user_id'])) {
-    // المستخدم مسجل الدخول
-      header('Location:index.php');
+include "header.php";
+
+// التحقق من تسجيل الدخول
+if(!isset($_SESSION['user_id']) && !isset($_SESSION['driver_id'])) {
+    // المستخدم غير مسجل الدخول
+    header('Location: index.php');
+    exit();
 }
+
+$user_type = isset($_SESSION['user_type']) ? $_SESSION['user_type'] : '';
+
 // الاتصال بقاعدة البيانات
 $servername = "localhost";
 $username = "bandsfrt_b";
@@ -19,8 +25,8 @@ if ($conn->connect_error) {
     die("فشل الاتصال بقاعدة البيانات: " . $conn->connect_error);
 }
 
-// استعلام لاسترجاع جميع العروض من جدول الرحلات
-$sql = "SELECT * FROM trips";
+// استعلام لاسترجاع العروض التي حالتها 'pending' فقط من جدول الرحلات
+$sql = "SELECT * FROM new_trips WHERE status = 'pending'";
 $result = $conn->query($sql);
 ?>
     <style>
@@ -103,6 +109,9 @@ $result = $conn->query($sql);
                     $endTime = date("g:i A", strtotime($row['endTime']));
                     $userCoords = $row['userCoords'];
                     $destCoords = $row['destCoords'];
+                    $trip_id = $row['id'];
+                    $trip_user_id = $row['user_id']; // معرف المستخدم الذي أنشأ الرحلة
+
                     // يمكنك استخدام الإحداثيات لعرض الخريطة إذا أردت
 
                     echo '
@@ -120,7 +129,7 @@ $result = $conn->query($sql);
                                         <i class="bi bi-calendar-week me-2" style="color: #7A52B3;"></i>
                                         <span>أيام الرحلة: '.$days.'</span>
                                     </li>
-                                    <li class="d-flex align-items-center mb-2">
+                                    <li class="d-flex alignمينs-center mb-2">
                                         <i class="bi bi-clock me-2" style="color: #7A52B3;"></i>
                                         <span>وقت الانطلاق: '.$startTime.' - وقت العودة: '.$endTime.'</span>
                                     </li>
@@ -136,8 +145,20 @@ $result = $conn->query($sql);
                                     </li>';
                     }
                     echo '
-                                </ul>
-                                <a href="#" class="btn btn-primary btn-custom">ابدا التوصيل</a>
+                                </ul>';
+
+                    // إضافة زر "ابدأ التوصيل" للسائقين فقط
+                    if ($user_type === 'driver') {
+                        echo '
+                        <form method="POST" action="accepted.php">
+                            <input type="hidden" name="trip_id" value="'.$trip_id.'">
+                            <input type="hidden" name="user_id" value="'.$trip_user_id.'">
+                            <button type="submit" class="btn btn-primary btn-custom">ابدأ التوصيل</button>
+                        </form>
+                        ';
+                    }
+
+                    echo '
                             </div>
                         </div>
                     </div>

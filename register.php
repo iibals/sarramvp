@@ -1,11 +1,11 @@
 <?php include "header.php"?>
 <?php
     // بدء الجلسة
-    session_start();
-    if(isset($_SESSION['user_id'])) {
-        // المستخدم مسجل الدخول
-          header('Location:index.php');
-    }
+    // session_start();
+    // if(isset($_SESSION['user_id'])) {
+    //     // المستخدم مسجل الدخول
+    //       header('Location:index.php');
+    // }
 // بدء جلسة للعمل مع CSRF Token إذا رغبت
 // إعداد متغيرات للرسائل
 $success = '';
@@ -111,7 +111,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="form-group">
                         <label for="password">كلمة المرور</label>
                         <input type="password" class="form-control" id="password" name="password" placeholder="كلمة المرور" required>
-                        <a class="to-driver-section" href="driver-login.php"> اضغط هنا لدخول الكابتن</a>
+                    </div>
+                    <div class="" style="
+                        margin-right: 3%;
+                    ">
+                     <a class="to-driver-section text-end" href="driver-register.php">كابتن ؟</a>        
                     </div>
                     <div class="text-center mt-3"><button type="submit" class="btn btn-primary">تسجيل</button</div>
                 </form>

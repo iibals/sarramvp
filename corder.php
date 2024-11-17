@@ -1,12 +1,18 @@
-<?php include "header.php"; ?>
+
 <?php
-// تمكين عرض الأخطاء للتصحيح (يُفضل تعطيله في بيئة الإنتاج)
-    // بدء الجلسة
-    session_start();
-    if(!isset($_SESSION['user_id'])) {
-        // المستخدم مسجل الدخول
-          header('Location:index.php');
-    }
+session_start();
+include "header.php";
+
+// التحقق من تسجيل الدخول
+if(!isset($_SESSION['user_id'])) {
+    // المستخدم غير مسجل الدخول
+    header('Location: index.php');
+    exit();
+} else if(isset($_SESSION['driver_id'])) {
+    header("Location: index.php");
+}
+$user_id = $_SESSION['user_id'];
+$user_type = $_SESSION['user_type'];
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // استلام البيانات والتحقق منها
@@ -64,9 +70,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $daysStr = implode(',', $days);
 
     try {
-        // تحضير الاستعلام
-        $stmt = $conn->prepare("INSERT INTO trips (title, notes, days, startTime, endTime, userCoords, destCoords, price) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sssssssd", $title, $notes, $daysStr, $startTime, $endTime, $userCoords, $destCoords, $price);
+        // تحضير الاستعلام مع تضمين `user_id`
+        $stmt = $conn->prepare("INSERT INTO new_trips (title, notes, days, startTime, endTime, userCoords, destCoords, price, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("ssssssdsi", $title, $notes, $daysStr, $startTime, $endTime, $userCoords, $destCoords, $price, $user_id);
 
         // تنفيذ الاستعلام
         if ($stmt->execute()) {
@@ -84,93 +90,110 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
-    <!-- تضمين مكتبة جوجل ماب -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=" async defer></script>
+<!-- تضمين مكتبة جوجل ماب -->
+<!-- استبدل YOUR_GOOGLE_MAPS_API_KEY بمفتاح API صالح -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA-tSFogw40FV039I2_54IanhZQwrc514o" async defer></script>
 
-    <style>
-        /* تنسيق الخريطتين */
-        #userMap, #destMap {
-            height: 400px;
-            width: 100%;
-        }
-        .map-container {
-            margin-bottom: 20px;
-        }
-    </style>
-    <div class="container mt-5">
-        <!-- عنوان الطلب -->
-        <h2 class="mb-4 text-center large-header" style="color: #7A52B3;">عنوان الطلب</h2>
 
-        <form method="POST" action="corder.php" onsubmit="return validateForm()">
-            <!-- حقل عنوان الطلب -->
-            <div class="form-group">
-                <input type="text" class="form-control" id="title" name="title" placeholder="مثال: رحلة الجامعة الأسبوعية" required>
-            </div>
+<style>
+    /* تنسيق الخريطتين */
+    #userMap, #destMap {
+        height: 400px;
+        width: 100%;
+    }
+    .map-container {
+        margin-bottom: 20px;
+    }
+</style>
+<div class="container mt-5">
+    <!-- عنوان الطلب -->
+    <h2 class="mb-4 text-center large-header" style="color: #7A52B3;">عنوان الطلب</h2>
 
-            <!-- خريطة موقع المستخدم -->
-            <div class="map-container">
-                <h4>موقعك الحالي</h4>
-                <div id="userMap"></div>
-            </div>
-            <!-- خريطة الوجهة -->
-            <div class="map-container">
-                <h4>الوجهة</h4>
-                <div id="destMap"></div>
-            </div>
+    <form method="POST" action="corder.php" onsubmit="return validateForm()">
+        <!-- حقل عنوان الطلب -->
+        <div class="form-group">
+            <input type="text" class="form-control" id="title" name="title" placeholder="مثال: رحلة الجامعة الأسبوعية" required>
+        </div>
 
-            <div class="form-group mt-3">
-                <label>أيام الرحلة:</label><br>
-                <!-- عناصر اختيار الأيام -->
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="sunday" name="days[]" value="Sunday">
-                    <label class="form-check-label" for="sunday">الأحد</label>
-                </div>
-                <!-- اليوم الاثنين -->
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="monday" name="days[]" value="Monday">
-                    <label class="form-check-label" for="monday">الاثنين</label>
-                </div>
-                <!-- اليوم الثلاثاء -->
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="tuesday" name="days[]" value="Tuesday">
-                    <label class="form-check-label" for="tuesday">الثلاثاء</label>
-                </div>
-                <!-- اليوم الأربعاء -->
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="wednesday" name="days[]" value="Wednesday">
-                    <label class="form-check-label" for="wednesday">الأربعاء</label>
-                </div>
-                <!-- اليوم الخميس -->
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="thursday" name="days[]" value="Thursday">
-                    <label class="form-check-label" for="thursday">الخميس</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <label for="startTime">وقت الانطلاق:</label>
-                <input type="time" class="form-control" id="startTime" name="startTime" required>
-            </div>
-            <div class="form-group">
-                <label for="endTime">وقت العودة:</label>
-                <input type="time" class="form-control" id="endTime" name="endTime" required>
-            </div>
-            <div class="form-group">
-                <label for="price">السعر للعرض الشهري (بين 500 و1000):</label>
-                <input type="number" class="form-control" id="price" name="price" min="500" max="1000" required>
-            </div>
-            <!-- حقل الملاحظات -->
-            <div class="form-group">
-                <label for="notes">الملاحظات:</label>
-                <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="أدخل أي ملاحظات إضافية هنا..."></textarea>
-            </div>
-            <!-- مدخلات مخفية لتخزين إحداثيات العلامات -->
-            <input type="hidden" id="userCoords" name="userCoords">
-            <input type="hidden" id="destCoords" name="destCoords">
-            <div class="text-center mt-3"> <button type="submit" class="btn btn-primary">تقديم العرض</button></div>
-        </form>
-    </div>
+        <!-- خريطة موقع المستخدم -->
+        <div class="map-container">
+            <h4>موقعك الحالي</h4>
+            <div id="userMap"></div>
+        </div>
+        <!-- خريطة الوجهة -->
+        <div class="map-container">
+            <h4>الوجهة</h4>
+            <div id="destMap"></div>
+        </div>
 
-    <script>
+        <div class="form-group mt-3">
+            <label>أيام الرحلة:</label><br>
+            <!-- عناصر اختيار الأيام -->
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="sunday" name="days[]" value="Sunday">
+                <label class="form-check-label" for="sunday">الأحد</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="monday" name="days[]" value="Monday">
+                <label class="form-check-label" for="monday">الاثنين</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="tuesday" name="days[]" value="Tuesday">
+                <label class="form-check-label" for="tuesday">الثلاثاء</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="wednesday" name="days[]" value="Wednesday">
+                <label class="form-check-label" for="wednesday">الأربعاء</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="thursday" name="days[]" value="Thursday">
+                <label class="form-check-label" for="thursday">الخميس</label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="startTime">وقت الانطلاق:</label>
+            <input type="time" class="form-control" id="startTime" name="startTime" required>
+        </div>
+        <div class="form-group">
+            <label for="endTime">وقت العودة:</label>
+            <input type="time" class="form-control" id="endTime" name="endTime" required>
+        </div>
+        <div class="form-group">
+            <label for="price">السعر للعرض الشهري (بين 500 و1000):</label>
+            <input type="number" class="form-control" id="price" name="price" min="500" max="1000" required>
+        </div>
+        <!-- حقل الملاحظات -->
+        <div class="form-group">
+            <label for="notes">الملاحظات:</label>
+            <textarea class="form-control" id="notes" name="notes" rows="3" placeholder="أدخل أي ملاحظات إضافية هنا..."></textarea>
+        </div>
+        <!-- مدخلات مخفية لتخزين إحداثيات العلامات -->
+        <input type="hidden" id="userCoords" name="userCoords">
+        <input type="hidden" id="destCoords" name="destCoords">
+        <div class="text-center mt-3">
+            <!-- عرض زر "ابدأ التوصيل" للسائقين فقط -->
+            <?php if ($user_type === 'driver'): ?>
+                <button type="submit" class="btn btn-primary">ابدأ التوصيل</button>
+            <?php else: ?>
+                <button type="submit" class="btn btn-primary">تقديم العرض</button>
+            <?php endif; ?>
+        </div>
+    </form>
+</div>
+
+<script>
+// الحصول على جميع عناصر 'div' داخل '#destMap'
+var allDivs = document.querySelectorAll('#destMap div');
+
+// التحقق من وجود عناصر 'div'
+if (allDivs.length > 0) {
+    // الحصول على آخر عنصر 'div' في القائمة
+    var lastDiv = allDivs[allDivs.length - 1];
+
+    // إزالة خاصية 'style' من هذا العنصر
+    lastDiv.removeAttribute('style');
+}
+
 let userMap, destMap, userMarker, destMarker;
 
 // تهيئة الخرائط عند تحميل الصفحة
@@ -319,10 +342,6 @@ function validateForm() {
 
 // تحميل الخرائط عند تحميل الصفحة
 window.onload = initMap;
-
-    </script>
-
-
-
+</script>
 
 <?php include "fotter.php"; ?>
