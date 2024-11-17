@@ -92,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 ?>
 <!-- تضمين مكتبة جوجل ماب -->
 <!-- استبدل YOUR_GOOGLE_MAPS_API_KEY بمفتاح API صالح -->
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA-tSFogw40FV039I2_54IanhZQwrc514o" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=" async defer></script>
 
 
 <style>
